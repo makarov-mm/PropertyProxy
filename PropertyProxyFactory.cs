@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 public class PropertyProxyFactory
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class PropertyProxyAttribute : Attribute { }
+    public sealed class PropertyProxyAttribute : Attribute;
 
     private readonly Dictionary<string, Type> _types = new();
 
@@ -85,7 +85,7 @@ public class PropertyProxyFactory
                     $"get_{prop.Name}",
                     MethodAttributes.Public | MethodAttributes.Virtual,
                     prop.PropertyType,
-                    new Type[] { });
+                    []);
 
                 methodGet.SetImplementationFlags(MethodImplAttributes.IL);
                 ILGenerator ilGet = methodGet.GetILGenerator();
@@ -99,7 +99,7 @@ public class PropertyProxyFactory
                     $"set_{prop.Name}",
                     MethodAttributes.Public | MethodAttributes.Virtual,
                     null,
-                    new[] { prop.PropertyType });
+                    [prop.PropertyType]);
 
                 methodSet.SetImplementationFlags(MethodImplAttributes.IL);
                 ILGenerator ilSet = methodSet.GetILGenerator();
@@ -107,7 +107,7 @@ public class PropertyProxyFactory
                 ilSet.Emit(OpCodes.Ldarg_0);
                 ilSet.Emit(OpCodes.Ldfld, ownerField);
                 ilSet.Emit(OpCodes.Ldarg_1);
-                ilSet.EmitCall(OpCodes.Callvirt, prop.GetSetMethod()!, new[] { prop.PropertyType });
+                ilSet.EmitCall(OpCodes.Callvirt, prop.GetSetMethod()!, [prop.PropertyType]);
                 ilSet.Emit(OpCodes.Ret);
 
                 propertyBuilder.SetGetMethod(methodGet);
@@ -125,7 +125,7 @@ public class PropertyProxyFactory
             ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
                 CallingConventions.Standard,
-                new[] { typeof(object) });
+                [typeof(object)]);
             ILGenerator ilGen = constructorBuilder.GetILGenerator();
 
             ilGen.Emit(OpCodes.Ldarg_0);
@@ -134,7 +134,7 @@ public class PropertyProxyFactory
 
             ilGen.Emit(OpCodes.Ret);
 
-            Type type = typeBuilder.CreateType()!;
+            Type type = typeBuilder.CreateType();
             _types.Add(sourceTypeName, type);
         }
     }
@@ -160,7 +160,7 @@ public class PropertyProxyFactory
     public T CreateProxy<T>(object source)
     {
         Type sourceType = source.GetType();
-        InnerGenerateFor(new[] { sourceType }, new[] { typeof(T) });
+        InnerGenerateFor([sourceType], [typeof(T)]);
         string sourceTypeName = sourceType.AssemblyQualifiedName ?? string.Empty;
         return (T)Activator.CreateInstance(_types[sourceTypeName], source)!;
     }

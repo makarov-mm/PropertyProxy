@@ -23,7 +23,7 @@ for (int i = 0; i < 30; i += 3)
     {
         string propertyName = property.Name;
         property.SetValue(proxy2, i + 1);
-        string propertyValue = property.GetValue(proxy2).ToString();
+        string propertyValue = property.GetValue(proxy2)!.ToString()!;
         Console.WriteLine($@"{propertyName} = {propertyValue}");
     }
 
